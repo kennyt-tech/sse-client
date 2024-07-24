@@ -14,10 +14,7 @@ public class SseClientRunner implements CommandLineRunner {
 
     private final WebClient webClient;
 
-    @Value("${sse.stream.url}")
-    private String url;
-
-    public SseClientRunner() {
+    public SseClientRunner(@Value("${sse.stream.url}") String url) {
         this.webClient = WebClient.create(url);
     }
 
@@ -28,9 +25,7 @@ public class SseClientRunner implements CommandLineRunner {
 
     public void consumeServerSentEvents() {
         Flux<ServerSentEvent> eventStream = webClient.get()
-//                .uri("/")
                 .retrieve()
-//                .bodyToFlux(String.class)
                 .bodyToFlux(ServerSentEvent.class)
                 .doOnError(WebClientResponseException.class, ex -> {
                     System.out.println("Error receiving SSE: " + ex.getMessage());
@@ -38,7 +33,8 @@ public class SseClientRunner implements CommandLineRunner {
 
         eventStream.subscribeOn(Schedulers.boundedElastic())
                 .subscribe(event -> {
-                    System.out.println("Received event: " + event);
+                    System.out.println("Received event: " + event.event());
+                    System.out.println("Received data: " + event.data());
                 });
     }
 }
