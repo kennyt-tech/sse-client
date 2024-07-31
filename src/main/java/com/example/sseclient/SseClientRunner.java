@@ -1,5 +1,6 @@
 package com.example.sseclient;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.http.codec.ServerSentEvent;
@@ -10,6 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 @Component
+@Slf4j
 public class SseClientRunner implements CommandLineRunner {
 
     private final WebClient webClient;
@@ -27,14 +29,12 @@ public class SseClientRunner implements CommandLineRunner {
         Flux<ServerSentEvent> eventStream = webClient.get()
                 .retrieve()
                 .bodyToFlux(ServerSentEvent.class)
-                .doOnError(WebClientResponseException.class, ex -> {
-                    System.out.println("Error receiving SSE: " + ex.getMessage());
-                });
+                .doOnError(WebClientResponseException.class, ex -> log.error("Error receiving SSE: " + ex.getMessage()));
 
         eventStream.subscribeOn(Schedulers.boundedElastic())
                 .subscribe(event -> {
-                    System.out.println("Received event: " + event.event());
-                    System.out.println("Received data: " + event.data());
+                    log.info("Received event: " + event.event());
+                    log.info("Received data: " + event.data());
                 });
     }
 }
