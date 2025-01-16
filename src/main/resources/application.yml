@@ -1,3 +1,4 @@
 sse:
   stream:
-    url: http://localhost:8080/sse/stream
+    url: https://streams.v2.validic.com/streams/<streamId>/connect?token=<token>
+    replay: https://streams.v2.validic.com/replay?resources=summary,measurement&token=<token>&date=2025-01-01
